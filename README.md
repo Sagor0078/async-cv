@@ -1,4 +1,3 @@
-# the architecture and relationships of smart-risk-analyzer project structure.
+# asyncronus computer vision
 
-[![Directory docs](docs/diagram.png)](https://github.com/Sagor0078/financial-risk-analyzer)
 
