@@ -1,9 +1,10 @@
 from celery import Celery
 from app.core.config import settings
 
+
 def create_celery_app() -> Celery:
     celery_app = Celery("cv_inference")
-    
+
     celery_app.conf.update(
         broker_url=settings.CELERY_BROKER_URL,
         result_backend=settings.CELERY_RESULT_BACKEND,
@@ -19,14 +20,15 @@ def create_celery_app() -> Celery:
         task_acks_late=True,
         worker_max_tasks_per_child=50,
         task_routes={
-            'app.celery_app.tasks.classify_image_task': {'queue': 'classification'},
-            'app.celery_app.tasks.detect_objects_task': {'queue': 'detection'},
-            'app.celery_app.tasks.detect_faces_task': {'queue': 'faces'},
-            'app.celery_app.tasks.analyze_image_task': {'queue': 'analysis'},
-            'app.celery_app.tasks.batch_process_task': {'queue': 'batch'},
-        }
+            "app.celery_app.tasks.classify_image_task": {"queue": "classification"},
+            "app.celery_app.tasks.detect_objects_task": {"queue": "detection"},
+            "app.celery_app.tasks.detect_faces_task": {"queue": "faces"},
+            "app.celery_app.tasks.analyze_image_task": {"queue": "analysis"},
+            "app.celery_app.tasks.batch_process_task": {"queue": "batch"},
+        },
     )
-    
+
     return celery_app
+
 
 celery_app = create_celery_app()
