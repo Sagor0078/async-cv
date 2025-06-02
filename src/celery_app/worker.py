@@ -1,7 +1,3 @@
-"""
-Celery worker startup script
-"""
-
 import os
 import sys
 

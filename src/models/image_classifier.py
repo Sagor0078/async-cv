@@ -1,8 +1,7 @@
 import asyncio
 from typing import Dict
-import torch
-import torchvision.transforms as transforms
-from torchvision import models
+import tensorflow as tf
+import numpy as np
 from PIL import Image
 import io
 
@@ -10,37 +9,18 @@ from .base import BaseModel
 
 
 class ImageClassifier(BaseModel):
-    """ResNet-based image classifier"""
+    """ResNet-based image classifier (TensorFlow version)"""
 
     def __init__(self):
         super().__init__()
-        self.classes = [
-            "airplane",
-            "automobile",
-            "bird",
-            "cat",
-            "deer",
-            "dog",
-            "frog",
-            "horse",
-            "ship",
-            "truck",
-        ]
-        self.transform = transforms.Compose(
-            [
-                transforms.Resize(224),
-                transforms.CenterCrop(224),
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-                ),
-            ]
-        )
+        self.transform_size = (224, 224)
+        self.model = None
+        self.classes = None  # TensorFlow's model returns ImageNet class names
+        self.decode_predictions = tf.keras.applications.resnet50.decode_predictions
 
     async def load_model(self):
         def _load():
-            model = models.resnet50(weights="IMAGENET1K_V1")
-            model.eval()
+            model = tf.keras.applications.ResNet50(weights="imagenet")
             return model
 
         async with self.lock:
@@ -59,26 +39,26 @@ class ImageClassifier(BaseModel):
             if image.mode != "RGB":
                 image = image.convert("RGB")
 
-            input_tensor = self.transform(image).unsqueeze(0)
+            image = image.resize(self.transform_size)
+            image_array = tf.keras.preprocessing.image.img_to_array(image)
+            image_array = np.expand_dims(image_array, axis=0)
+            image_array = tf.keras.applications.resnet50.preprocess_input(image_array)
 
-            with torch.no_grad():
-                output = self.model(input_tensor)
-                probabilities = torch.nn.functional.softmax(output[0], dim=0)
+            # Make prediction
+            predictions = self.model.predict(image_array)
+            decoded = self.decode_predictions(predictions, top=5)[0]
 
-                # Get top 5 predictions
-                top5_prob, top5_catid = torch.topk(probabilities, 5)
+            results = []
+            for class_id, class_name, confidence in decoded:
+                results.append(
+                    {
+                        "class_id": class_id,
+                        "class_name": class_name,
+                        "confidence": float(confidence),
+                    }
+                )
 
-                results = []
-                for i in range(5):
-                    results.append(
-                        {
-                            "class_id": top5_catid[i].item(),
-                            "class_name": f"class_{top5_catid[i].item()}",
-                            "confidence": top5_prob[i].item(),
-                        }
-                    )
-
-                return {"predictions": results, "model_type": "image_classifier"}
+            return {"predictions": results, "model_type": "image_classifier"}
 
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, _predict)
