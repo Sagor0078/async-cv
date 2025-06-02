@@ -1,17 +1,3 @@
-"""
-Async CV Inference System Architecture Diagram
-
-Includes:
-- Ingress (Nginx)
-- FastAPI service
-- RabbitMQ broker with volume
-- Redis backend with volume
-- PostgreSQL database
-- Multiple Celery workers
-- Monitoring (Flower via Prometheus)
-- Healthcheck endpoint
-"""
-
 from diagrams import Diagram, Cluster
 from diagrams.onprem.inmemory import Redis
 from diagrams.onprem.queue import RabbitMQ
@@ -19,24 +5,23 @@ from diagrams.programming.language import Python
 from diagrams.onprem.monitoring import Prometheus
 from diagrams.onprem.client import Users
 from diagrams.onprem.network import Nginx
-from diagrams.onprem.database import PostgreSQL
 from diagrams.generic.storage import Storage
 from diagrams.custom import Custom
 
 # Graph attributes
 graph_attr = {
-    "pad": "0.3",
+    "pad": "0.5",
     "splines": "curved",
-    "nodesep": "0.5",
-    "ranksep": "0.5",
+    "nodesep": "0.8",
+    "ranksep": "1.2",
     "fontcolor": "#2c3e50"
 }
 
 # Node attributes
 node_attr = {
-    "fontsize": "10",
-    "width": "0.7",
-    "height": "0.7",
+    "fontsize": "13",
+    "width": "1.4",
+    "height": "1.4",
     "fontcolor": "#2c3e50"
 }
 
@@ -73,10 +58,6 @@ with Diagram(
         cache_vol = Storage("redis_data")
         cache >> cache_vol
 
-    # Metadata Database
-    with Cluster("Database"):
-        db = PostgreSQL("PostgreSQL\n(Task Metadata)")
-
     # Celery Workers
     with Cluster("Celery Workers"):
         worker_cls = Python("Classification\nQueue")
@@ -92,7 +73,6 @@ with Diagram(
     client >> ingress >> api >> healthcheck
     api >> broker
     api >> cache
-    api >> db
 
     # Worker connections
     broker >> [worker_cls, worker_det, worker_face, worker_analysis]
