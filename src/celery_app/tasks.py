@@ -5,11 +5,11 @@ from typing import Dict, List
 from celery import current_task
 import redis
 
-from app.celery_app.celery import celery_app
-from app.models.image_classifier import ImageClassifier
-from app.models.object_detector import ObjectDetector
-from app.models.face_detector import FaceDetector
-from app.core.config import settings
+from src.celery_app.celery import celery_app
+from src.models.image_classifier import ImageClassifier
+from src.models.object_detector import ObjectDetector
+from src.models.face_detector import FaceDetector
+from src.core.config import settings
 
 # Redis client for caching
 redis_client = redis.from_url(settings.REDIS_URL)

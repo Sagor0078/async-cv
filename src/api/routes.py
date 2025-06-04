@@ -5,11 +5,11 @@ from typing import List
 from fastapi import APIRouter, UploadFile, File, HTTPException
 import redis
 
-from app.main import models
-from app.api.schemas import PredictionResponse, TaskResponse, TaskStatusResponse
-from app.celery_app.celery import celery_app
-from app.celery_app import tasks
-from app.core.config import settings
+from src.main import models
+from src.api.schemas import PredictionResponse, TaskResponse, TaskStatusResponse
+from src.celery_app.celery import celery_app
+from src.celery_app import tasks
+from src.core.config import settings
 
 router = APIRouter()
 
