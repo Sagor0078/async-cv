@@ -1,5 +1,5 @@
 from celery import Celery
-from app.core.config import settings
+from src.core.config import settings
 
 
 def create_celery_app() -> Celery:
@@ -20,11 +20,11 @@ def create_celery_app() -> Celery:
         task_acks_late=True,
         worker_max_tasks_per_child=50,
         task_routes={
-            "app.celery_app.tasks.classify_image_task": {"queue": "classification"},
-            "app.celery_app.tasks.detect_objects_task": {"queue": "detection"},
-            "app.celery_app.tasks.detect_faces_task": {"queue": "faces"},
-            "app.celery_app.tasks.analyze_image_task": {"queue": "analysis"},
-            "app.celery_app.tasks.batch_process_task": {"queue": "batch"},
+            "src.celery_app.tasks.classify_image_task": {"queue": "classification"},
+            "src.celery_app.tasks.detect_objects_task": {"queue": "detection"},
+            "src.celery_app.tasks.detect_faces_task": {"queue": "faces"},
+            "src.celery_app.tasks.analyze_image_task": {"queue": "analysis"},
+            "src.celery_app.tasks.batch_process_task": {"queue": "batch"},
         },
     )
 
